@@ -4,46 +4,62 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Models\User; 
+use Illuminate\Support\Facades\Hash;
 
 class AuthManager extends Controller
 {
-    function login(){
+    // Show login page
+    public function login()
+    {
         return view('auth.login');
     }
 
-    function loginPost(Request $request){
+    // Handle login form
+    public function loginPost(Request $request)
+    {
         $request->validate([
-            'username'=> 'required',
-            'email'=> 'required',
-            'password'=> 'required|min:8',
+            'username' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:8',
         ]);
-        $credentials = $request->only('username','email','password');
-        if(Auth::attempt($credentials)){
-            return redirect()->intended(route("home"));
+
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            return redirect()->intended(route('home'));
         }
-        return redirect(route("login"))
-            ->with("error", "Invalid Email Or Password");
+
+        return back()->withErrors([
+            'email' => 'Invalid email or password.',
+        ])->withInput();
     }
 
-    function register(){
+    // Show register page
+    public function register()
+    {
         return view('auth.register');
     }
-    function registerPost(Request $request){
+
+    // Handle registration form
+    public function registerPost(Request $request)
+    {
         $request->validate([
-            'username'=> 'required',
-            'email'=> 'required|email',
-            'password'=> 'required|min:8',
+            'username' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8',
         ]);
+
         $user = new User();
         $user->username = $request->username;
         $user->email = $request->email;
-        $user->password = $request->password;
-        if($user->save()){
-            return redirect(route("login"))
-                ->with("success","Registration Successful");
+        $user->password = Hash::make($request->password); 
+
+        if ($user->save()) {
+            return redirect(route('login'))
+                ->with('success', 'Registration Successful');
         }
-        return redirect(route("register"))
-            ->with("error", "Registration Failed"); 
+
+        return back()->with('error', 'Registration Failed')->withInput();
     }
 }
