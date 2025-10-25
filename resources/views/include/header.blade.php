@@ -18,7 +18,7 @@
             <a class="nav-link disabled" aria-disabled="true">Disabled</a>
           </li>
         </ul>
-          <a class="btn btn-outline-success">create workspace </a>
+          <a class="btn btn-outline-success" href="{{route("tasks.addTask")}}">create workspace </a>
       </div>
     </div>
   </nav>
