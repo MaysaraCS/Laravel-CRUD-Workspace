@@ -15,7 +15,7 @@
             <a class="nav-link" href="#">Link</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+            <a class="nav-link" href="{{route("logout")}}">logout</a>
           </li>
         </ul>
           <a class="btn btn-outline-success" href="{{route("tasks.addTask")}}">create workspace </a>

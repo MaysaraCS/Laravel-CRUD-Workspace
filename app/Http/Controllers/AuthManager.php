@@ -35,6 +35,12 @@ class AuthManager extends Controller
         ])->withInput();
     }
 
+
+    function logout(){
+        Auth::logout();
+        return redirect(route("login"));
+    }
+
     // Show register page
     public function register()
     {

@@ -12,6 +12,9 @@ Route::get('/login', [AuthManager::class, 'login'])
 Route::post('/login', [AuthManager::class, 'loginPost'])
     ->name('login.post');
 
+Route::get('/logout', [AuthManager::class, 'logout'])
+    ->name('logout');
+
 Route::get('/register', [AuthManager::class, 'register'])
     ->name('register');
 
@@ -30,6 +33,12 @@ Route::middleware("auth")->group(function(){
 
     Route::post("tasks/addTask", [TaskManager::class,"addTaskPost"])
         ->name("tasks.addTask.post");
+    
+    Route::get("tasks/status/{id}", [TaskManager::class,"updateTaskStatus"])
+        ->name("tasks.updateTaskStatus");
+
+    Route::get("tasks/delete/{id}", [TaskManager::class,"deleteTask"])
+        ->name("tasks.deleteTask");
 });
 
 
