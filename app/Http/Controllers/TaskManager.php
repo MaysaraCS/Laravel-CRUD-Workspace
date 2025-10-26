@@ -1,7 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Tasks; 
+use App\Models\Tasks;
+use App\Models\WorkSpace;
+use App\Http\Requests\StoreTaskRequest;
+use Carbon\Carbon;
 
 
 use Illuminate\Http\Request;
@@ -9,42 +12,46 @@ use Illuminate\Http\Request;
 class TaskManager extends Controller
 {
     function listTask(){
-        $tasks = Tasks::where("user_id", auth()->user()->id)->where("status", NULL)->paginate(5);
-        return view("welcome", compact('tasks'));
+        if (auth()->check()) {
+            $workspaces = WorkSpace::where("user_id", auth()->user()->id)->get();
+            return view("welcome", compact('workspaces'));
+        } else {
+            return redirect()->route('register');
+        }
     }
-    function addTask(){
-        return view('tasks.addTask');
+    function addTask($workspaceId){
+        $workspace = WorkSpace::where('id', $workspaceId)->where('user_id', auth()->id())->firstOrFail();
+        return view('tasks.addTask', compact('workspace'));
     }
-    function addTaskPost(Request $request){
-        $request->validate([
-            'title'=>'required',
-            'description'=>'required',
-            'deadline'=>'required',
-        ]);
+    function addTaskPost(StoreTaskRequest $request, $workspaceId){
+        $workspace = WorkSpace::where('id', $workspaceId)->where('user_id', auth()->id())->firstOrFail();
         $task = new Tasks();
         $task->title = $request->title;
         $task->description = $request->description;
         $task->deadline = $request->deadline;
         $task->user_id = auth()->user()->id;
+        $task->workspace_id = $workspace->id;
 
         if($task->save()){
-            //return redirect(route("tasks.listTask"))
-            return redirect(route("home"))
+            return redirect(route("workspaces.show", $workspace->id))
                 ->with("success", "Task added successfully");
         }
-        return redirect(route("tasks.addTask"))
+        return redirect(route("tasks.addTask", $workspace->id))
                 ->with("error", "Task Not Added");
     }
     function updateTaskStatus($id){
-        if(Tasks::where("user_id", auth()->user()->id)->where('id', $id)->update(['status' => 'completed'])){
-            return redirect(route("home"))->with("success" , "task completed");
+        $task = Tasks::where("user_id", auth()->user()->id)->where('id', $id)->firstOrFail();
+        if($task->update(['status' => 'completed'])){
+            return redirect()->back()->with("success" , "task completed");
         }
-        return redirect(route("home"))->with("error" , "error occurred while updating , try again");
+        return redirect()->back()->with("error" , "error occurred while updating , try again");
     }
     function deleteTask($id){
-        if(Tasks::where("user_id", auth()->user()->id)->where('id', $id)->delete()){
-            return redirect(route("home"))->with("success" , "task deleted");
+        $task = Tasks::where("user_id", auth()->user()->id)->where('id', $id)->firstOrFail();
+        $workspaceId = $task->workspace_id;
+        if($task->delete()){
+            return redirect(route("workspaces.show", $workspaceId))->with("success" , "task deleted");
         }
-        return redirect(route("home"))->with("error" , "error occurred while deleting , try again");
+        return redirect(route("workspaces.show", $workspaceId))->with("error" , "error occurred while deleting , try again");
     }
 }

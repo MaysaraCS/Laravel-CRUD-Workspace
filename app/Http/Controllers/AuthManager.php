@@ -62,7 +62,8 @@ class AuthManager extends Controller
         $user->password = Hash::make($request->password); 
 
         if ($user->save()) {
-            return redirect(route('login'))
+            Auth::login($user);
+            return redirect(route('home'))
                 ->with('success', 'Registration Successful');
         }
 
