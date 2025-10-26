@@ -68,7 +68,8 @@
           </div>
         @endforeach
       @else
-        <p class="text-muted">No workspaces yet. <a href="{{ route('workspaces.create') }}">Create your first workspace</a>.</p>
+        <p class="text-muted">No workspaces yet. 
+        </p>
       @endif
 
     </div>

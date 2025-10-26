@@ -90,7 +90,7 @@
           {{ $tasks->links() }}
         </div>
       @else
-        <p class="text-muted">No tasks yet. <a href="{{ route('tasks.addTask', $workspace->id) }}">Add your first task</a>.</p>
+        <p class="text-muted">No tasks yet.</a>.</p>
       @endif
 
     </div>
